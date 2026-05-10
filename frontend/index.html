@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neuralab — Neural Network Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <circle cx="4" cy="6"  r="2.2" fill="currentColor" opacity=".7"/>
+          <circle cx="4" cy="18" r="2.2" fill="currentColor" opacity=".4"/>
+          <circle cx="12" cy="4" r="2.2" fill="currentColor"/>
+          <circle cx="12" cy="12" r="2.2" fill="currentColor" opacity=".85"/>
+          <circle cx="12" cy="20" r="2.2" fill="currentColor" opacity=".55"/>
+          <circle cx="20" cy="9"  r="2.2" fill="currentColor" opacity=".75"/>
+          <circle cx="20" cy="15" r="2.2" fill="currentColor" opacity=".6"/>
+          <g stroke="currentColor" stroke-width="0.8" opacity=".4">
+            <line x1="4"  y1="6"  x2="12" y2="4"/>
+            <line x1="4"  y1="6"  x2="12" y2="12"/>
+            <line x1="4"  y1="18" x2="12" y2="12"/>
+            <line x1="4"  y1="18" x2="12" y2="20"/>
+            <line x1="12" y1="4"  x2="20" y2="9"/>
+            <line x1="12" y1="12" x2="20" y2="9"/>
+            <line x1="12" y1="12" x2="20" y2="15"/>
+            <line x1="12" y1="20" x2="20" y2="15"/>
+          </g>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">neuralab</span>
+        <span class="brand-sub">neural network studio</span>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">idle</span>
+      <span class="topbar-divider"></span>
+      <span class="topbar-link"><a href="https://github.com/" target="_blank" rel="noopener">github</a></span>
+      <span class="topbar-link"><a href="#theory">docs</a></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Left sidebar: configuration -->
+    <aside class="sidebar">
+      <section class="cfg-section">
+        <h3>Dataset</h3>
+        <label class="field">
+          <span>Source</span>
+          <select id="cfg-dataset"></select>
+        </label>
+        <label class="field">
+          <span>Problem</span>
+          <select id="cfg-prob">
+            <option value="binary">Binary classification</option>
+            <option value="multiclass">Multi-class</option>
+            <option value="regression">Regression</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Samples <em id="lbl-samples">300</em></span>
+          <input id="cfg-samples" type="range" min="100" max="800" step="50" value="300" />
+        </label>
+        <label class="field">
+          <span>Noise <em id="lbl-noise">0.10</em></span>
+          <input id="cfg-noise" type="range" min="0" max="0.4" step="0.02" value="0.10" />
+        </label>
+        <label class="field">
+          <span>Test split <em id="lbl-split">20%</em></span>
+          <input id="cfg-split" type="range" min="0.1" max="0.4" step="0.05" value="0.2" />
+        </label>
+        <label class="upload">
+          <input id="cfg-upload" type="file" accept=".csv" />
+          <span>Upload CSV (last col = label)</span>
+        </label>
+      </section>
+
+      <section class="cfg-section">
+        <h3>Architecture</h3>
+        <label class="field">
+          <span>Model</span>
+          <select id="cfg-model">
+            <option value="perceptron">Perceptron (historical)</option>
+            <option value="perceptron_act">Perceptron + activation</option>
+            <option value="mlp" selected>MLP (multi-layer)</option>
+            <option value="rbf">RBF Network</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Hidden activation</span>
+          <select id="cfg-act">
+            <option value="relu" selected>ReLU</option>
+            <option value="tanh">tanh</option>
+            <option value="sigmoid">sigmoid</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Output activation <em class="muted small">auto</em></span>
+          <select id="cfg-out-act">
+            <option value="sigmoid" selected>sigmoid (binary)</option>
+            <option value="softmax">softmax (multi-class)</option>
+            <option value="linear">linear (regression)</option>
+          </select>
+        </label>
+        <label class="field" id="cfg-layers-row">
+          <span>Hidden layers <em id="lbl-layers">2</em></span>
+          <input id="cfg-layers" type="range" min="1" max="5" step="1" value="2" />
+        </label>
+        <label class="field" id="cfg-width-row">
+          <span>Width <em id="lbl-width">8</em></span>
+          <input id="cfg-width" type="range" min="2" max="32" step="1" value="8" />
+        </label>
+        <label class="field" id="cfg-widths-row">
+          <span>Per-layer widths <em class="muted small">override</em></span>
+          <input id="cfg-widths" type="text" placeholder="e.g. 16,8,4" />
+        </label>
+        <label class="field hidden" id="cfg-rbf-row">
+          <span>RBF centers <em id="lbl-rbf">20</em></span>
+          <input id="cfg-rbf" type="range" min="4" max="60" step="2" value="20" />
+        </label>
+      </section>
+
+      <section class="cfg-section">
+        <h3>Training</h3>
+        <label class="field">
+          <span>Learning rate <em id="lbl-lr">0.01</em></span>
+          <input id="cfg-lr" type="range" min="0" max="5" step="1" value="3" />
+        </label>
+        <label class="field">
+          <span>Epochs <em id="lbl-epochs">200</em></span>
+          <input id="cfg-epochs" type="range" min="50" max="500" step="50" value="200" />
+        </label>
+        <label class="field">
+          <span>Batch size <em id="lbl-batch">32</em></span>
+          <input id="cfg-batch" type="range" min="0" max="4" step="1" value="2" />
+        </label>
+        <label class="field">
+          <span>Loss</span>
+          <select id="cfg-loss">
+            <option value="bce">Binary cross-entropy</option>
+            <option value="cce">Categorical cross-entropy</option>
+            <option value="mse">Mean squared error</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="cfg-section">
+        <h3>Regularisation</h3>
+        <label class="field">
+          <span>Method</span>
+          <select id="cfg-reg">
+            <option value="none">None</option>
+            <option value="l2">L2</option>
+            <option value="dropout">Dropout</option>
+            <option value="early">Early stopping</option>
+          </select>
+        </label>
+        <label class="field hidden" id="reg-l2-row">
+          <span>L2 λ <em id="lbl-l2">0.001</em></span>
+          <input id="cfg-l2" type="range" min="0" max="0.1" step="0.001" value="0.001" />
+        </label>
+        <label class="field hidden" id="reg-dropout-row">
+          <span>Dropout rate <em id="lbl-dropout">0.20</em></span>
+          <input id="cfg-dropout" type="range" min="0" max="0.5" step="0.05" value="0.20" />
+        </label>
+        <label class="field hidden" id="reg-es-row">
+          <span>Patience <em id="lbl-patience">10</em></span>
+          <input id="cfg-patience" type="range" min="5" max="30" step="1" value="10" />
+        </label>
+      </section>
+
+      <button id="btn-train" class="btn-train">
+        <span class="btn-arrow">▶</span>
+        <span>Train network</span>
+      </button>
+    </aside>
+
+    <!-- Main panel -->
+    <section class="main">
+      <!-- Hero strip: live network + telemetry -->
+      <div class="hero">
+        <div class="hero-card hero-network">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Network topology</div>
+              <div class="card-eyebrow">live · weights pulse during training</div>
+            </div>
+            <div class="hero-arch" id="arch-pill">— · — · —</div>
+          </div>
+          <div id="network-viz" class="network-viz"></div>
+          <div class="legend-row">
+            <span><i class="dot dot-pos"></i>positive weight</span>
+            <span><i class="dot dot-neg"></i>negative weight</span>
+            <span><i class="dot dot-act"></i>activation</span>
+          </div>
+        </div>
+        <div class="hero-card hero-telemetry">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Telemetry</div>
+              <div class="card-eyebrow">epoch metrics</div>
+            </div>
+            <div class="progress-ring">
+              <svg viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.5" class="ring-bg"/>
+                <circle cx="18" cy="18" r="15.5" class="ring-fg" id="progress-ring"/>
+              </svg>
+              <span id="progress-text">0%</span>
+            </div>
+          </div>
+          <div class="telemetry-grid">
+            <div><div class="t-lbl">epoch</div><div class="t-val mono" id="t-epoch">—</div></div>
+            <div><div class="t-lbl">train loss</div><div class="t-val mono" id="t-tloss">—</div></div>
+            <div><div class="t-lbl">val loss</div><div class="t-val mono" id="t-vloss">—</div></div>
+            <div><div class="t-lbl">train acc</div><div class="t-val mono" id="t-tacc">—</div></div>
+            <div><div class="t-lbl">val acc</div><div class="t-val mono" id="t-vacc">—</div></div>
+            <div><div class="t-lbl">gen. gap</div><div class="t-val mono" id="t-gap">—</div></div>
+          </div>
+          <div id="status-banner" class="status-banner status-info">
+            <span>Configure on the left, then train.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="training">Training</button>
+        <button class="tab" data-tab="results">Results</button>
+        <button class="tab" data-tab="boundary">Decision boundary</button>
+        <button class="tab" data-tab="viz3d">3D</button>
+        <button class="tab" data-tab="theory">Theory</button>
+        <button class="tab" data-tab="experiments">Experiments</button>
+      </nav>
+
+      <!-- Tab: Training -->
+      <section class="tab-panel active" data-panel="training">
+        <div class="grid-2">
+          <div class="panel-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Loss curve</div>
+                <div class="card-eyebrow">cross-entropy / mse, train + val</div>
+              </div>
+            </div>
+            <div class="chart-box"><canvas id="chart-loss"></canvas></div>
+          </div>
+          <div class="panel-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Accuracy curve</div>
+                <div class="card-eyebrow">classification only</div>
+              </div>
+            </div>
+            <div class="chart-box"><canvas id="chart-acc"></canvas></div>
+            <div class="muted small" id="acc-empty" style="display:none;padding:12px;">N/A for regression tasks.</div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Sample input</div>
+              <div class="card-eyebrow">first two features · ground truth labels</div>
+            </div>
+          </div>
+          <div class="chart-box scatter-box"><canvas id="chart-data"></canvas></div>
+        </div>
+      </section>
+
+      <!-- Tab: Results -->
+      <section class="tab-panel" data-panel="results">
+        <div id="results-empty" class="empty">
+          Train a model to see metrics, the confusion matrix, and a per-class report.
+        </div>
+        <div id="results-content" class="hidden">
+          <div class="grid-3">
+            <div class="panel-card">
+              <div class="card-head"><div class="card-title">Headline metrics</div></div>
+              <div class="metrics-bars" id="metrics-bars"></div>
+            </div>
+            <div class="panel-card">
+              <div class="card-head"><div class="card-title">Confusion matrix</div></div>
+              <div id="confusion" class="confusion"></div>
+            </div>
+            <div class="panel-card">
+              <div class="card-head"><div class="card-title">Per-class report</div></div>
+              <div class="table-wrap"><table id="per-class-table"></table></div>
+              <div id="diagnosis" class="diagnosis"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab: Boundary -->
+      <section class="tab-panel" data-panel="boundary">
+        <div id="boundary-empty" class="empty">
+          Train on a 2D dataset to visualise the decision boundary.
+        </div>
+        <div id="boundary-content" class="hidden">
+          <div class="grid-2">
+            <div class="panel-card">
+              <div class="card-head"><div>
+                <div class="card-title">Train set</div>
+                <div class="card-eyebrow">model output · ground truth scatter</div>
+              </div></div>
+              <div class="boundary-box"><canvas id="boundary-train" width="520" height="420"></canvas></div>
+            </div>
+            <div class="panel-card">
+              <div class="card-head"><div>
+                <div class="card-title">Test set</div>
+                <div class="card-eyebrow">held-out generalisation</div>
+              </div></div>
+              <div class="boundary-box"><canvas id="boundary-test" width="520" height="420"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab: 3D -->
+      <section class="tab-panel" data-panel="viz3d">
+        <div id="viz3d-empty" class="empty">
+          Train a model to see the 3D probability surface and the loss landscape.
+        </div>
+        <div id="viz3d-content" class="hidden">
+          <div class="grid-2">
+            <div class="panel-card">
+              <div class="card-head"><div>
+                <div class="card-title">3D probability surface</div>
+                <div class="card-eyebrow">height = predicted P(class = 1) over the input plane</div>
+              </div></div>
+              <div id="viz3d-surface" class="viz3d-box"></div>
+            </div>
+            <div class="panel-card">
+              <div class="card-head"><div>
+                <div class="card-title">Loss landscape</div>
+                <div class="card-eyebrow">loss along two random directions through the trained weights</div>
+              </div></div>
+              <div id="viz3d-landscape" class="viz3d-box"></div>
+              <div class="muted small" style="padding:8px 4px;">
+                Training found the bottom of this bowl. Steeper walls = sharper minimum (often less stable).
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab: Theory -->
+      <section class="tab-panel" data-panel="theory" id="theory">
+        <div class="grid-2 theory-grid" id="theory-grid"></div>
+      </section>
+
+      <!-- Tab: Experiments -->
+      <section class="tab-panel" data-panel="experiments">
+        <div class="panel-card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Experiment runner</div>
+              <div class="card-eyebrow">automated comparisons on the circles dataset</div>
+            </div>
+          </div>
+          <div class="exp-controls">
+            <div class="seg-control" id="exp-seg"></div>
+            <button id="btn-exp" class="btn-secondary">Run experiment</button>
+          </div>
+        </div>
+        <div id="exp-results"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/charts.js"></script>
+  <script src="/js/network.js"></script>
+  <script src="/js/boundary.js"></script>
+  <script src="/js/viz3d.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

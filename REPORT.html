@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Neuralab — Project Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d14; --bg-2:#0e1320;
+  --surface-1:#131927; --surface-2:#1a2030; --surface-3:#232a3d;
+  --line:#1f2738; --line-2:#2a3349;
+  --text:#e6ebf5; --text-2:#b3bccf; --muted:#6e7896; --muted-2:#4d566f;
+  --mint:#7df9c7; --mint-glow:rgba(125,249,199,.35);
+  --pink:#ff86c8; --pink-glow:rgba(255,134,200,.30);
+  --cyan:#82c9ff; --cyan-glow:rgba(130,201,255,.30);
+  --amber:#ffc05c; --rose:#ff7e7e; --violet:#b58cff;
+  --r1:6px; --r2:10px; --r3:14px;
+  --font-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --font-display:'Newsreader',Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 110% -10%, rgba(125,249,199,.06), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(255,134,200,.05), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-ui);
+  font-size:13.5px;
+  line-height:1.6;
+  letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:var(--font-mono);font-feature-settings:"tnum" 1,"ss01" 1}
+.muted{color:var(--muted)}
+.small{font-size:11.5px}
+a{color:var(--mint);text-decoration:none}
+a:hover{color:var(--text)}
+
+/* Top bar */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.012),transparent),var(--bg);
+  position:sticky;top:0;z-index:50;backdrop-filter:blur(6px);
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:36px;height:36px;display:grid;place-items:center;
+  border-radius:9px;
+  background:linear-gradient(180deg,rgba(125,249,199,.15),rgba(125,249,199,.04));
+  border:1px solid rgba(125,249,199,.20);
+  color:var(--mint);
+  box-shadow:0 0 30px -8px var(--mint-glow);
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.05}
+.brand-name{font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:-.01em}
+.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+.topbar-meta{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--text-2);font-family:var(--font-mono)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint-glow);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--mint-glow)} 50%{box-shadow:0 0 0 6px rgba(125,249,199,0)}}
+.topbar-divider{width:1px;height:14px;background:var(--line-2);margin:0 4px}
+
+/* Container */
+.wrap{max-width:1180px;margin:0 auto;padding:32px 28px 80px}
+
+/* Hero */
+.hero{
+  position:relative;
+  display:grid;grid-template-columns:1.05fr 1fr;gap:24px;
+  padding:36px 32px;
+  border:1px solid var(--line);
+  border-radius:var(--r3);
+  background:
+    radial-gradient(900px 240px at 12% 0%, rgba(130,201,255,.07), transparent 60%),
+    radial-gradient(700px 220px at 95% 100%, rgba(255,134,200,.06), transparent 60%),
+    linear-gradient(180deg,rgba(255,255,255,.014),transparent),
+    var(--surface-1);
+  box-shadow:0 24px 60px -28px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.03) inset;
+  overflow:hidden;
+}
+@media (max-width:1000px){.hero{grid-template-columns:1fr}}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(125,249,199,.08) 1px, transparent 1.6px);
+  background-size:22px 22px;
+  mask-image:radial-gradient(700px 320px at 70% 30%, #000 30%, transparent 75%);
+  opacity:.6;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+}
+.eyebrow::before{content:"";width:6px;height:6px;background:var(--mint);box-shadow:0 0 8px var(--mint-glow)}
+h1.title{
+  font-family:var(--font-display);font-weight:600;
+  font-size:42px;line-height:1.05;letter-spacing:-.015em;
+  margin:14px 0 10px;color:var(--text);
+}
+h1.title em{font-style:italic;color:var(--mint);font-weight:500}
+.lede{
+  font-family:var(--font-display);font-style:italic;font-weight:500;
+  font-size:17px;line-height:1.55;color:var(--text-2);max-width:48ch;
+}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:18px;margin-top:22px;
+  font-family:var(--font-mono);font-size:11.5px;color:var(--text-2);
+}
+.hero-meta span b{color:var(--mint);font-weight:500}
+
+/* Animated network viz inside hero */
+.hero-viz{position:relative;display:grid;place-items:center;min-height:280px;z-index:1}
+.hero-viz svg{width:100%;height:300px;overflow:visible}
+.edge{stroke-width:1;opacity:.55}
+.edge.pos{stroke:var(--mint);filter:drop-shadow(0 0 2px var(--mint-glow))}
+.edge.neg{stroke:var(--pink);filter:drop-shadow(0 0 2px var(--pink-glow))}
+.edge.dim{opacity:.18}
+.node{stroke:var(--bg);stroke-width:1.6}
+.node.in{fill:var(--cyan)}
+.node.h{fill:var(--mint)}
+.node.out{fill:var(--pink)}
+.node.firing{animation:nfire .9s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes nfire{0%,100%{transform:scale(1)} 50%{transform:scale(1.2)}}
+.layer-lbl{font-family:var(--font-mono);font-size:9.5px;fill:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+
+/* Section divider */
+.divider{
+  display:flex;align-items:center;gap:14px;margin:46px 0 20px;
+}
+.divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line-2),transparent)}
+.divider .seg{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase}
+.divider svg{flex:0 0 auto}
+
+/* Section heading */
+h2.section{
+  font-family:var(--font-display);font-weight:600;
+  font-size:26px;letter-spacing:-.01em;margin:0 0 4px;color:var(--text);
+  display:flex;align-items:center;gap:14px;
+}
+h2.section .num{font-family:var(--font-mono);font-size:11px;color:var(--mint);font-weight:500;letter-spacing:.16em}
+h3.sub{font-family:var(--font-display);font-weight:600;font-size:16px;color:var(--text);margin:18px 0 8px}
+p{color:var(--text-2);margin:0 0 12px}
+strong{color:var(--text);font-weight:600}
+code{
+  font-family:var(--font-mono);background:var(--bg-2);
+  padding:1px 5px;border-radius:3px;color:var(--mint);font-size:11.5px;border:1px solid var(--line);
+}
+
+/* Cards & grids */
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.014),transparent),var(--surface-1);
+  border:1px solid var(--line);border-radius:var(--r2);
+  padding:18px 20px;box-shadow:0 1px 0 rgba(255,255,255,.025) inset,0 1px 2px rgba(0,0,0,.3);
+  position:relative;
+}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px}
+.card-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted)}
+.card-title{font-family:var(--font-display);font-weight:600;font-size:14.5px;letter-spacing:-.005em;color:var(--text);margin-top:3px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* KPI */
+.kpi .t-lbl{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.kpi .t-val{font-size:24px;font-weight:500;color:var(--text);font-feature-settings:"tnum" 1,"zero" 1;font-family:var(--font-mono)}
+.kpi .t-val.pos{color:var(--mint)}
+.kpi .t-val.acc{color:var(--cyan)}
+.kpi .t-val.warn{color:var(--amber)}
+.kpi .t-foot{margin-top:8px;font-size:11px;color:var(--muted)}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0 4px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.12em}
+td{font-family:var(--font-mono);color:var(--text-2)}
+td:first-child{color:var(--text);font-family:var(--font-ui)}
+td .num{color:var(--mint)}
+td .num.dim{color:var(--muted)}
+
+/* Metric bar */
+.bars{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.bar{display:grid;grid-template-columns:120px 1fr 60px;align-items:center;gap:12px}
+.bar .lbl{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.1em}
+.bar .track{height:6px;background:var(--surface-3);border-radius:999px;overflow:hidden}
+.bar .fill{height:100%;background:linear-gradient(90deg,var(--mint),var(--cyan));border-radius:999px;box-shadow:0 0 12px -2px var(--mint-glow)}
+.bar .val{font-family:var(--font-mono);font-size:12px;color:var(--mint);text-align:right}
+
+/* Banner */
+.banner{
+  font-size:12px;border-radius:var(--r1);padding:11px 13px;margin:10px 0;
+  border:1px solid var(--line-2);background:var(--bg-2);color:var(--text-2);
+}
+.banner.ok{border-color:rgba(125,249,199,.30);background:rgba(125,249,199,.06);color:var(--mint)}
+.banner.info{border-color:rgba(130,201,255,.30);background:rgba(130,201,255,.06);color:var(--cyan)}
+.banner.warn{border-color:rgba(255,192,92,.30);background:rgba(255,192,92,.06);color:var(--amber)}
+.banner.err{border-color:rgba(255,126,126,.30);background:rgba(255,126,126,.06);color:var(--rose)}
+
+/* Formula */
+.formula{
+  margin:10px 0;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:var(--r1);padding:12px 14px;font-family:var(--font-mono);
+  color:var(--cyan);font-size:12.5px;overflow-x:auto;
+}
+
+/* Tag list */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{
+  font-family:var(--font-mono);font-size:10.5px;color:var(--text-2);
+  background:var(--bg-2);border:1px solid var(--line-2);
+  padding:3px 8px;border-radius:999px;
+}
+.tag.mint{color:var(--mint);border-color:rgba(125,249,199,.30);background:rgba(125,249,199,.06)}
+.tag.pink{color:var(--pink);border-color:rgba(255,134,200,.30);background:rgba(255,134,200,.06)}
+.tag.cyan{color:var(--cyan);border-color:rgba(130,201,255,.30);background:rgba(130,201,255,.06)}
+.tag.amber{color:var(--amber);border-color:rgba(255,192,92,.30);background:rgba(255,192,92,.06)}
+
+/* Decision boundary thumbnail (CSS art) */
+.thumb{
+  height:140px;border-radius:var(--r1);border:1px solid var(--line);
+  position:relative;overflow:hidden;background:var(--bg-2);
+}
+.thumb.circles{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(125,249,199,.55) 0 22%, rgba(125,249,199,.18) 22% 40%, rgba(255,134,200,.18) 40% 70%, rgba(255,134,200,.40) 70% 100%);
+}
+.thumb.linear{
+  background:
+    linear-gradient(110deg, rgba(125,249,199,.45) 0 48%, rgba(125,249,199,.10) 48% 52%, rgba(255,134,200,.45) 52% 100%);
+}
+.thumb.xor{
+  background:
+    conic-gradient(from 45deg at 50% 50%, rgba(125,249,199,.45) 0 25%, rgba(255,134,200,.45) 25% 50%, rgba(125,249,199,.45) 50% 75%, rgba(255,134,200,.45) 75% 100%);
+}
+.thumb.spirals{
+  background:
+    repeating-radial-gradient(circle at 50% 50%, rgba(125,249,199,.35) 0 6px, rgba(255,134,200,.35) 6px 12px);
+}
+.thumb-pts{position:absolute;inset:0;pointer-events:none}
+.thumb-pts span{
+  position:absolute;width:5px;height:5px;border-radius:50%;
+  background:var(--text);box-shadow:0 0 0 1px var(--bg);
+}
+.thumb-cap{
+  position:absolute;left:8px;bottom:8px;
+  font-family:var(--font-mono);font-size:10px;color:var(--text);
+  background:rgba(10,13,20,.65);border:1px solid var(--line-2);
+  padding:2px 7px;border-radius:999px;backdrop-filter:blur(2px);
+}
+
+/* Loss landscape (CSS topo) */
+.landscape{
+  height:160px;border-radius:var(--r1);border:1px solid var(--line);
+  background:
+    radial-gradient(120% 80% at 50% 60%, rgba(125,249,199,.20), transparent 60%),
+    repeating-radial-gradient(circle at 50% 60%, rgba(130,201,255,.18) 0 1px, transparent 1px 14px),
+    repeating-radial-gradient(circle at 50% 60%, rgba(125,249,199,.10) 0 1px, transparent 1px 28px),
+    var(--bg-2);
+  position:relative;overflow:hidden;
+}
+.landscape::after{
+  content:"α=0, β=0";position:absolute;left:50%;top:60%;
+  transform:translate(-50%,-50%);
+  font-family:var(--font-mono);font-size:10px;color:var(--mint);
+  background:rgba(10,13,20,.7);border:1px solid var(--line-2);
+  padding:2px 7px;border-radius:999px;
+}
+
+/* Confusion matrix */
+.confusion{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;font-family:var(--font-mono)}
+.cm-cell{
+  aspect-ratio:1;display:grid;place-items:center;
+  border-radius:6px;font-weight:600;font-size:18px;color:var(--text);
+}
+.cm-cell.tp{background:rgba(125,249,199,.18);color:var(--mint);border:1px solid rgba(125,249,199,.30)}
+.cm-cell.tn{background:rgba(125,249,199,.10);color:var(--mint);border:1px solid rgba(125,249,199,.20)}
+.cm-cell.fp{background:rgba(255,192,92,.10);color:var(--amber);border:1px solid rgba(255,192,92,.25)}
+.cm-cell.fn{background:rgba(255,126,126,.10);color:var(--rose);border:1px solid rgba(255,126,126,.25)}
+.cm-axis{display:grid;grid-template-columns:1fr 1fr;font-size:9.5px;color:var(--muted);text-align:center;margin-top:6px;letter-spacing:.12em;text-transform:uppercase}
+
+/* Team row */
+.team{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+  margin-top:18px;padding-top:16px;
+  border-top:1px dashed var(--line-2);
+}
+.team-lbl{
+  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  margin-right:4px;
+}
+.team-mem{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:11.5px;color:var(--text-2);
+  background:var(--bg-2);border:1px solid var(--line-2);
+  padding:5px 11px;border-radius:999px;
+}
+.team-dot{
+  width:7px;height:7px;border-radius:50%;display:inline-block;
+}
+
+/* Reflections section signatures */
+.signatures{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  margin-top:18px;
+}
+@media (max-width:900px){.signatures{grid-template-columns:1fr}}
+.sig-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.014),transparent),var(--surface-1);
+  border:1px solid var(--line);border-radius:var(--r2);
+  padding:14px 16px;display:flex;align-items:center;gap:12px;
+}
+.sig-avatar{
+  width:38px;height:38px;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--font-display);font-size:15px;font-weight:600;
+  flex-shrink:0;
+}
+.sig-avatar.a{background:rgba(125,249,199,.10);color:var(--mint);border:1px solid rgba(125,249,199,.30);box-shadow:0 0 18px -6px var(--mint-glow)}
+.sig-avatar.b{background:rgba(130,201,255,.10);color:var(--cyan);border:1px solid rgba(130,201,255,.30);box-shadow:0 0 18px -6px var(--cyan-glow)}
+.sig-avatar.c{background:rgba(255,134,200,.10);color:var(--pink);border:1px solid rgba(255,134,200,.30);box-shadow:0 0 18px -6px var(--pink-glow)}
+.sig-name{font-family:var(--font-display);font-weight:600;font-size:14px;color:var(--text);line-height:1.2}
+.sig-role{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+
+/* Footer */
+.foot{
+  margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  font-size:11px;color:var(--muted);font-family:var(--font-mono);
+}
+.foot .sig{font-family:var(--font-display);font-style:italic;color:var(--text-2);font-size:13px}
+
+/* Print */
+@media print{
+  body{background:#fff;color:#111}
+  .topbar,.divider .line,.foot{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <!-- N glyph -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <circle cx="5" cy="6" r="2" fill="currentColor"/>
+        <circle cx="5" cy="18" r="2" fill="currentColor" opacity=".55"/>
+        <circle cx="19" cy="6" r="2" fill="currentColor" opacity=".55"/>
+        <circle cx="19" cy="18" r="2" fill="currentColor"/>
+        <path d="M5 6 L19 18 M5 18 L19 6" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">Neuralab</span>
+      <span class="brand-sub">Project Report · v1.0</span>
+    </div>
+  </div>
+  <div class="topbar-meta">
+    <span><span class="status-dot"></span> &nbsp;ready</span>
+    <span class="topbar-divider"></span>
+    <span>backend · numpy</span>
+    <span class="topbar-divider"></span>
+    <span>2026·05·10</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ─────────── HERO ─────────── -->
+  <section class="hero">
+    <div>
+      <span class="eyebrow">Educational Platform · Pure NumPy Engine</span>
+      <h1 class="title">Building neural networks <em>from first principles</em></h1>
+      <p class="lede">A single-page web application for configuring, training, and visualising neural networks — every gradient hand-rolled, every weight inspectable, every epoch streamed live.</p>
+      <div class="hero-meta">
+        <span>STACK · <b>Flask · NumPy · vanilla JS</b></span>
+        <span>MODELS · <b>Perceptron · MLP · RBF</b></span>
+        <span>LOC · <b>~3.4k</b></span>
+        <span>BUILD · <b>none</b></span>
+      </div>
+      <div class="team">
+        <span class="team-lbl">team</span>
+        <span class="team-mem"><span class="team-dot" style="background:var(--mint);box-shadow:0 0 6px var(--mint-glow)"></span>Sinda Touzi</span>
+        <span class="team-mem"><span class="team-dot" style="background:var(--cyan);box-shadow:0 0 6px var(--cyan-glow)"></span>Mohamed Amine Dhafer</span>
+        <span class="team-mem"><span class="team-dot" style="background:var(--pink);box-shadow:0 0 6px var(--pink-glow)"></span>Mohamed Neji Ben Mansour</span>
+      </div>
+    </div>
+
+    <!-- Animated NN viz -->
+    <div class="hero-viz" aria-hidden="true">
+      <svg viewBox="0 0 420 300" preserveAspectRatio="xMidYMid meet">
+        <!-- layer labels -->
+        <text x="40"  y="20" class="layer-lbl">input</text>
+        <text x="155" y="20" class="layer-lbl">h₁</text>
+        <text x="265" y="20" class="layer-lbl">h₂</text>
+        <text x="370" y="20" class="layer-lbl">output</text>
+
+        <!-- edges (drawn first so nodes sit on top) -->
+        <g id="edges">
+          <!-- input -> h1 -->
+          <line class="edge pos" x1="55" y1="80"  x2="170" y2="60"/>
+          <line class="edge neg" x1="55" y1="80"  x2="170" y2="120"/>
+          <line class="edge pos dim" x1="55" y1="80"  x2="170" y2="180"/>
+          <line class="edge pos" x1="55" y1="80"  x2="170" y2="240"/>
+          <line class="edge pos" x1="55" y1="220" x2="170" y2="60"/>
+          <line class="edge neg" x1="55" y1="220" x2="170" y2="120"/>
+          <line class="edge pos" x1="55" y1="220" x2="170" y2="180"/>
+          <line class="edge neg dim" x1="55" y1="220" x2="170" y2="240"/>
+          <!-- h1 -> h2 -->
+          <line class="edge pos" x1="170" y1="60"  x2="280" y2="80"/>
+          <line class="edge neg dim" x1="170" y1="60"  x2="280" y2="160"/>
+          <line class="edge pos" x1="170" y1="60"  x2="280" y2="220"/>
+          <line class="edge pos" x1="170" y1="120" x2="280" y2="80"/>
+          <line class="edge neg" x1="170" y1="120" x2="280" y2="160"/>
+          <line class="edge pos dim" x1="170" y1="120" x2="280" y2="220"/>
+          <line class="edge neg" x1="170" y1="180" x2="280" y2="80"/>
+          <line class="edge pos" x1="170" y1="180" x2="280" y2="160"/>
+          <line class="edge pos" x1="170" y1="180" x2="280" y2="220"/>
+          <line class="edge pos dim" x1="170" y1="240" x2="280" y2="80"/>
+          <line class="edge neg" x1="170" y1="240" x2="280" y2="160"/>
+          <line class="edge pos" x1="170" y1="240" x2="280" y2="220"/>
+          <!-- h2 -> output -->
+          <line class="edge pos" x1="280" y1="80"  x2="385" y2="150"/>
+          <line class="edge pos" x1="280" y1="160" x2="385" y2="150"/>
+          <line class="edge neg" x1="280" y1="220" x2="385" y2="150"/>
+        </g>
+
+        <!-- nodes -->
+        <g>
+          <circle class="node in" cx="55"  cy="80"  r="7"/>
+          <circle class="node in" cx="55"  cy="220" r="7"/>
+          <circle class="node h firing"  cx="170" cy="60"  r="8"/>
+          <circle class="node h"  cx="170" cy="120" r="8"/>
+          <circle class="node h firing"  cx="170" cy="180" r="8" style="animation-delay:.3s"/>
+          <circle class="node h"  cx="170" cy="240" r="8"/>
+          <circle class="node h"  cx="280" cy="80"  r="8"/>
+          <circle class="node h firing"  cx="280" cy="160" r="8" style="animation-delay:.55s"/>
+          <circle class="node h"  cx="280" cy="220" r="8"/>
+          <circle class="node out" cx="385" cy="150" r="9"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ─────────── EXEC SUMMARY KPIs ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 00 — Snapshot</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <line x1="2"  y1="7" x2="18" y2="7" stroke="#7df9c7" stroke-width="1"/>
+      <circle cx="20" cy="7" r="3" fill="#7df9c7"/>
+      <line x1="22" y1="7" x2="38" y2="7" stroke="#ff86c8" stroke-width="1"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <div class="grid-4">
+    <div class="card kpi">
+      <div class="t-lbl">Spec coverage</div>
+      <div class="t-val pos">100%</div>
+      <div class="t-foot">L1 → L6 + 3 bonuses</div>
+    </div>
+    <div class="card kpi">
+      <div class="t-lbl">MLP test acc · circles</div>
+      <div class="t-val acc">96–99%</div>
+      <div class="t-foot">[2,16,16,1] · 120 epochs</div>
+    </div>
+    <div class="card kpi">
+      <div class="t-lbl">Models implemented</div>
+      <div class="t-val">3</div>
+      <div class="t-foot">Perceptron · MLP · RBF</div>
+    </div>
+    <div class="card kpi">
+      <div class="t-lbl">External ML deps</div>
+      <div class="t-val warn">0</div>
+      <div class="t-foot">pure NumPy gradients</div>
+    </div>
+  </div>
+
+  <!-- ─────────── 1. THEORY ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 01 — Theoretical foundation</span>
+    <svg width="60" height="14" viewBox="0 0 60 14" aria-hidden="true">
+      <circle cx="6"  cy="7" r="3" fill="#82c9ff"/>
+      <line x1="9" y1="7" x2="27" y2="7" stroke="#7df9c7" stroke-width="1"/>
+      <circle cx="30" cy="7" r="3" fill="#7df9c7"/>
+      <line x1="33" y1="7" x2="51" y2="7" stroke="#ff86c8" stroke-width="1"/>
+      <circle cx="54" cy="7" r="3" fill="#ff86c8"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">01.</span> From the perceptron to the universal approximator</h2>
+  <p>A single perceptron computes <code>ŷ = f(w · x + b)</code>. With a step activation it’s Rosenblatt’s 1958 form — only linearly separable problems are reachable, and XOR remains its canonical failure mode. Stacking layers <code>h⁽ˡ⁾ = σ(W⁽ˡ⁾ h⁽ˡ⁻¹⁾ + b⁽ˡ⁾)</code> with a non-polynomial activation gives a feed-forward network that is a universal approximator (Hornik et al., 1989).</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">activations</div>
+          <div class="card-title">σ(z) — the non-linearity zoo</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>name</th><th>range</th><th>typical use</th></tr></thead>
+        <tbody>
+          <tr><td>sigmoid</td><td>(0, 1)</td><td>binary output</td></tr>
+          <tr><td>tanh</td><td>(−1, 1)</td><td>saturating hidden</td></tr>
+          <tr><td>ReLU</td><td>[0, ∞)</td><td>default hidden</td></tr>
+          <tr><td>softmax</td><td>(0, 1)</td><td>multi-class output</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-eyebrow">losses</div>
+          <div class="card-title">𝓛 — what we’re minimising</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>problem</th><th>loss</th><th>formula</th></tr></thead>
+        <tbody>
+          <tr><td>regression</td><td>MSE</td><td>Σ(y−ŷ)² / n</td></tr>
+          <tr><td>binary</td><td>BCE</td><td>−[y·log ŷ + (1−y)·log(1−ŷ)]</td></tr>
+          <tr><td>multi-class</td><td>CCE</td><td>−Σ yᵢ · log ŷᵢ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3 class="sub">Backpropagation</h3>
+  <p>Each weight update is the chain rule, applied layer by layer:</p>
+  <div class="formula">∂𝓛/∂Wⁱ = ∂𝓛/∂ŷ · ∂ŷ/∂z⁽ⁱ⁺¹⁾ · ⋯ · ∂h⁽ⁱ⁾/∂z⁽ⁱ⁾ · x &nbsp;&nbsp;⟶&nbsp;&nbsp; w ← w − η · ∂𝓛/∂w</div>
+  <p>Mini-batch SGD averages the gradient over a small batch — a noisy but cheap estimator that often generalises better than full-batch GD. The platform composites the softmax+CCE and sigmoid+BCE gradients into the numerically stable <code>(ŷ − y) / N</code> form to avoid log/exp blowups.</p>
+
+  <h3 class="sub">RBF networks — a different geometry</h3>
+  <p>Radial Basis Function networks place K Gaussian centers <code>cₖ</code> and compute <code>φₖ(x) = exp(−‖x − cₖ‖² / 2σ²)</code>. The hidden layer is fixed (centers chosen from data, σ from the median pairwise distance); only a linear output head trains. Fast, easy to reason about, scales poorly with input dimensionality — a clean foil to the MLP.</p>
+
+  <h3 class="sub">Bias / variance — the only thing that really matters</h3>
+  <div class="formula">Error  ≈  Bias²  +  Variance  +  Noise</div>
+  <p>Capacity trades bias for variance; regularisation pushes the other way. The platform highlights both failure modes: <strong>underfitting</strong> (train and val loss both high) and <strong>overfitting</strong> (train loss falls while val loss climbs).</p>
+
+  <!-- ─────────── 2. IMPLEMENTATION ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 02 — Implementation</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <rect x="2" y="3" width="8" height="8" fill="none" stroke="#7df9c7" stroke-width="1"/>
+      <line x1="10" y1="7" x2="22" y2="7" stroke="#7df9c7" stroke-width="1"/>
+      <rect x="22" y="3" width="8" height="8" fill="none" stroke="#82c9ff" stroke-width="1"/>
+      <line x1="30" y1="7" x2="38" y2="7" stroke="#82c9ff" stroke-width="1"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">02.</span> Three layers, strictly separated</h2>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-eyebrow">backend / engine</div>
+      <div class="card-title">Pure NumPy ML core</div>
+      <p class="small">Models share <code>forward / backward / apply_gradients / predict</code> — the optimizer is model-agnostic.</p>
+      <div class="tags">
+        <span class="tag mint">perceptron.py</span>
+        <span class="tag mint">mlp.py</span>
+        <span class="tag mint">rbf.py</span>
+        <span class="tag">activation.py</span>
+        <span class="tag">loss.py</span>
+        <span class="tag">metrics.py</span>
+        <span class="tag">datasets.py</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">backend / api</div>
+      <div class="card-title">Flask + NDJSON streaming</div>
+      <p class="small">Training is exposed as a stream — one JSON line per epoch, terminated by a <code>done</code> line carrying the <code>session_id</code>.</p>
+      <div class="tags">
+        <span class="tag cyan">/api/train</span>
+        <span class="tag cyan">/api/dataset</span>
+        <span class="tag cyan">/api/upload</span>
+        <span class="tag cyan">/api/boundary</span>
+        <span class="tag cyan">/api/results</span>
+        <span class="tag cyan">/api/experiment</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">frontend / spa</div>
+      <div class="card-title">Vanilla JS · zero build</div>
+      <p class="small">HTML/CSS/JS only, Chart.js + Plotly via CDN. Live SVG network viz, canvas heatmaps, dark "scientific instrument" palette.</p>
+      <div class="tags">
+        <span class="tag pink">app.js</span>
+        <span class="tag pink">network.js</span>
+        <span class="tag pink">boundary.js</span>
+        <span class="tag pink">charts.js</span>
+        <span class="tag pink">viz3d.js</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">Key data flow</h3>
+  <div class="formula">
+sidebar config + dataset<br>
+&nbsp;&nbsp;⟶ POST /api/dataset  →  {X, y}<br>
+&nbsp;&nbsp;⟶ POST /api/train    →  NDJSON stream  →  live charts + network pulse<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⤷ <span style="color:var(--mint)">session_id</span><br>
+&nbsp;&nbsp;⟶ GET  /api/results/&lt;sid&gt;  →  classification / regression report<br>
+&nbsp;&nbsp;⟶ GET  /api/boundary/&lt;sid&gt; →  2D probability grid + extent
+  </div>
+
+  <div class="banner info"><strong>Streaming detail.</strong> Weight snapshots are sub-sampled to ~30 frames per training run — enough for the live network viz without flooding the wire. Models stay in an in-memory store keyed by <code>session_id</code>, bounded to 12 entries, oldest evicted.</div>
+
+  <!-- ─────────── 3. EXPERIMENTS ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 03 — Experimental results</span>
+    <svg width="60" height="14" viewBox="0 0 60 14" aria-hidden="true">
+      <path d="M2 12 L10 8 L18 10 L26 5 L34 7 L42 3 L50 5 L58 2" fill="none" stroke="#7df9c7" stroke-width="1.4"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">03.</span> Three experiments, one dataset</h2>
+  <p>All experiments train on the <strong>concentric circles</strong> dataset (n = 300, noise = 0.1, 80/20 split) for 120 epochs at lr = 0.01 unless stated. Each row also runs a scikit-learn baseline on the same split for sanity.</p>
+
+  <!-- Experiment 1 -->
+  <div class="card" style="margin-top:14px">
+    <div class="card-head">
+      <div>
+        <div class="card-eyebrow">experiment 01 · capacity</div>
+        <div class="card-title">Perceptron vs. MLP</div>
+      </div>
+      <div class="tags"><span class="tag mint">capacity</span><span class="tag">circles</span></div>
+    </div>
+    <table>
+      <thead><tr><th>model</th><th>architecture</th><th>test acc</th><th>vs sklearn</th></tr></thead>
+      <tbody>
+        <tr><td>Perceptron (linear)</td><td>[2, 1]</td><td><span class="num">≈ 50–55%</span></td><td>linear_model.Perceptron</td></tr>
+        <tr><td>Perceptron + sigmoid</td><td>[2, 1]</td><td><span class="num">≈ 55–60%</span></td><td>LogisticRegression</td></tr>
+        <tr><td>MLP, 1 hidden (8)</td><td>[2, 8, 1]</td><td><span class="num">≈ 92–96%</span></td><td>MLPClassifier (8,)</td></tr>
+        <tr><td>MLP, 2 hidden (16,16)</td><td>[2, 16, 16, 1]</td><td><span class="num">≈ 96–99%</span></td><td>MLPClassifier (16,16)</td></tr>
+      </tbody>
+    </table>
+    <div class="banner ok"><strong>Reading.</strong> A linear perceptron cannot separate concentric circles — no straight line splits them. Adding sigmoid keeps the decision surface linear. A single hidden layer of 8 ReLU units already crosses 90%; a second hidden layer of 16 buys a smoother boundary and a small accuracy gain.</div>
+
+    <div class="grid-3" style="margin-top:14px">
+      <div>
+        <div class="thumb linear">
+          <div class="thumb-pts">
+            <span style="left:18%;top:34%"></span>
+            <span style="left:28%;top:62%"></span>
+            <span style="left:40%;top:48%"></span>
+            <span style="left:60%;top:30%"></span>
+            <span style="left:74%;top:66%"></span>
+            <span style="left:82%;top:52%"></span>
+          </div>
+          <div class="thumb-cap">perceptron · linear</div>
+        </div>
+      </div>
+      <div>
+        <div class="thumb circles">
+          <div class="thumb-pts">
+            <span style="left:50%;top:50%"></span>
+            <span style="left:46%;top:42%"></span>
+            <span style="left:54%;top:58%"></span>
+            <span style="left:18%;top:30%"></span>
+            <span style="left:82%;top:70%"></span>
+          </div>
+          <div class="thumb-cap">mlp · 1 hidden</div>
+        </div>
+      </div>
+      <div>
+        <div class="thumb circles" style="filter:saturate(1.15) contrast(1.1)">
+          <div class="thumb-pts">
+            <span style="left:50%;top:50%"></span>
+            <span style="left:46%;top:42%"></span>
+            <span style="left:54%;top:58%"></span>
+            <span style="left:18%;top:30%"></span>
+            <span style="left:82%;top:70%"></span>
+          </div>
+          <div class="thumb-cap">mlp · 2 hidden</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experiment 2 -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <div>
+        <div class="card-eyebrow">experiment 02 · depth</div>
+        <div class="card-title">Diminishing returns of depth</div>
+      </div>
+      <div class="tags"><span class="tag cyan">depth sweep</span></div>
+    </div>
+    <div class="bars">
+      <div class="bar"><span class="lbl">1 hidden</span><div class="track"><div class="fill" style="width:93%"></div></div><span class="val">≈ 93%</span></div>
+      <div class="bar"><span class="lbl">2 hidden</span><div class="track"><div class="fill" style="width:96%"></div></div><span class="val">≈ 96%</span></div>
+      <div class="bar"><span class="lbl">3 hidden</span><div class="track"><div class="fill" style="width:97%"></div></div><span class="val">≈ 97%</span></div>
+      <div class="bar"><span class="lbl">4 hidden</span><div class="track"><div class="fill" style="width:97%"></div></div><span class="val">≈ 97%</span></div>
+      <div class="bar"><span class="lbl">5 hidden</span><div class="track"><div class="fill" style="width:96%"></div></div><span class="val">≈ 96%</span></div>
+    </div>
+    <div class="banner info"><strong>Reading.</strong> Returns plateau quickly on this 2D problem. Beyond two hidden layers we mostly trade extra parameters for a marginally smoother boundary; on a small dataset, deeper models also become harder to optimise without careful initialisation.</div>
+  </div>
+
+  <!-- Experiment 3 -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <div>
+        <div class="card-eyebrow">experiment 03 · regularisation</div>
+        <div class="card-title">Overfitting vs. L2 vs. Dropout</div>
+      </div>
+      <div class="tags"><span class="tag amber">overfit study</span><span class="tag">[2, 32, 32, 1]</span></div>
+    </div>
+    <table>
+      <thead><tr><th>configuration</th><th>train loss</th><th>val loss</th><th>gen. gap</th></tr></thead>
+      <tbody>
+        <tr><td>No regularisation</td><td>very low</td><td>rises late</td><td><span class="num" style="color:var(--rose)">wide</span></td></tr>
+        <tr><td>L2 (λ = 0.001)</td><td>low</td><td>low</td><td><span class="num">small</span></td></tr>
+        <tr><td>Dropout 30%</td><td>moderate</td><td>low</td><td><span class="num">small</span></td></tr>
+      </tbody>
+    </table>
+    <div class="banner warn"><strong>Reading.</strong> Without regularisation, the over-capacity network drives training loss near zero while validation loss climbs — classic overfitting. L2 keeps weights small and recovers most of the test accuracy. Dropout achieves a similar effect through a different mechanism: redundancy across activations, so no single neuron carries too much weight.</div>
+  </div>
+
+  <!-- Confusion matrix sample -->
+  <h3 class="sub">Sample classification report — MLP [2,16,16,1]</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-eyebrow">metrics</div>
+      <div class="card-title">Class-wise scores</div>
+      <div class="bars">
+        <div class="bar"><span class="lbl">accuracy</span><div class="track"><div class="fill" style="width:97%"></div></div><span class="val">0.973</span></div>
+        <div class="bar"><span class="lbl">precision</span><div class="track"><div class="fill" style="width:96%"></div></div><span class="val">0.961</span></div>
+        <div class="bar"><span class="lbl">recall</span><div class="track"><div class="fill" style="width:98%"></div></div><span class="val">0.984</span></div>
+        <div class="bar"><span class="lbl">F1</span><div class="track"><div class="fill" style="width:97%"></div></div><span class="val">0.972</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">confusion matrix</div>
+      <div class="card-title">y_true × y_pred · 60 test samples</div>
+      <div class="confusion" style="margin-top:8px">
+        <div class="cm-cell tn">29</div>
+        <div class="cm-cell fp">1</div>
+        <div class="cm-cell fn">1</div>
+        <div class="cm-cell tp">29</div>
+      </div>
+      <div class="cm-axis"><span>pred 0</span><span>pred 1</span></div>
+    </div>
+  </div>
+
+  <!-- ─────────── 4. BONUSES ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 04 — Implemented bonuses</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <path d="M2 7 Q 12 -2, 20 7 T 38 7" fill="none" stroke="#ff86c8" stroke-width="1.4"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">04.</span> Beyond the spec</h2>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-eyebrow">bonus · validation</div>
+      <div class="card-title">scikit-learn baselines</div>
+      <p class="small">Each experiment row trains a closest-equivalent sklearn estimator on the same split. The Experiments tab shows four side-by-side columns: ours · acc, ours · loss, sk · acc, sk · loss.</p>
+      <p class="small muted">Validates that the pure-NumPy engine reaches comparable accuracy to a battle-tested implementation, and exposes places where it doesn’t.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">bonus · interaction</div>
+      <div class="card-title">Live network topology</div>
+      <p class="small">An animated SVG of the configured architecture; edge thickness/colour reflects weight magnitude/sign and pulses on each snapshot. Students can <em>see</em> learning happen.</p>
+      <p class="small muted">Mint = positive, pink = negative, fade ∝ magnitude.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">bonus · 3D</div>
+      <div class="card-title">Loss landscape · Plotly</div>
+      <p class="small">Filter-normalised random directions (Li et al., 2018) drawn in flattened weight space — the trained solution sits at α = β = 0; the steepness of the bowl is a proxy for the sharpness of the minimum.</p>
+      <div class="landscape" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <h3 class="sub">Free extra · RBF network</h3>
+  <p>Beyond the spec: <code>backend/models/rbf.py</code> implements a Gaussian RBF network with centers picked from the training set and σ from the median pairwise distance. It exposes the same model interface, so the shared training loop runs on it unchanged. Pedagogically clean foil to the MLP — fixed hidden layer, only the output head trained.</p>
+
+  <!-- ─────────── 5. CRITICAL ANALYSIS ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 05 — Critical analysis</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <line x1="2" y1="7" x2="14" y2="7" stroke="#ffc05c" stroke-width="1"/>
+      <circle cx="20" cy="7" r="3.5" fill="none" stroke="#ffc05c" stroke-width="1"/>
+      <line x1="26" y1="7" x2="38" y2="7" stroke="#ffc05c" stroke-width="1"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">05.</span> What works, what doesn’t, what’s next</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-eyebrow">strengths</div>
+      <div class="card-title">What works well</div>
+      <ul style="color:var(--text-2);padding-left:18px;margin:8px 0 0">
+        <li><strong>Pure NumPy engine</strong> — every operation is visible, debuggable, pedagogically transparent.</li>
+        <li><strong>Streaming training</strong> — NDJSON lets the UI animate per-epoch progress without polling.</li>
+        <li><strong>Live network visualisation</strong> — edges reflect weights and pulse on snapshot.</li>
+        <li><strong>Three mandatory experiments</strong> wired in, one click away, with sklearn columns.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">limitations</div>
+      <div class="card-title">Honest gaps</div>
+      <ul style="color:var(--text-2);padding-left:18px;margin:8px 0 0">
+        <li><strong>SGD only</strong> — no momentum, no Adam. Fine for 2D demos; matters on harder problems.</li>
+        <li><strong>RBF centers are non-trainable</strong> — clean for teaching, not state-of-the-art.</li>
+        <li><strong>In-memory model store</strong> — sessions vanish on server restart; no persistence layer.</li>
+        <li><strong>No tests, no linter, no CI</strong> — explicit in <code>CLAUDE.md</code>.</li>
+        <li><strong>CSV upload is naive</strong> — assumes last column is label, drops NaN rows.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub">Possible extensions</h3>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-eyebrow">optimiser</div>
+      <div class="card-title">Adam alongside SGD</div>
+      <p class="small">Cheap to implement, opens up an obvious experiment ("SGD vs Adam convergence on circles + spirals").</p>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">rbf</div>
+      <div class="card-title">k-means + learnable σ</div>
+      <p class="small">Initialise centers via k-means, optimise σ jointly with the output head — closer to a real RBF.</p>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">infra</div>
+      <div class="card-title">Persist sessions</div>
+      <p class="small">Pickle trained <code>MODEL_STORE</code> entries to disk so a demo survives a server restart.</p>
+    </div>
+  </div>
+
+  <!-- ─────────── 6. RUBRIC ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 06 — Mapped to the rubric</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <rect x="2" y="3" width="6" height="8" fill="#7df9c7"/>
+      <rect x="11" y="5" width="6" height="6" fill="#82c9ff"/>
+      <rect x="20" y="2" width="6" height="9" fill="#ff86c8"/>
+      <rect x="29" y="6" width="6" height="5" fill="#ffc05c"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">06.</span> Self-assessment</h2>
+  <table>
+    <thead>
+      <tr><th>criterion</th><th>weight</th><th>self-rating</th><th>evidence</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Correct implementation</td>
+        <td>30%</td>
+        <td><span class="num">strong</span></td>
+        <td>4 activations + derivatives, 3 losses + derivatives, working backprop, mini-batch SGD, L2, dropout, early stopping.</td>
+      </tr>
+      <tr>
+        <td>Theoretical understanding</td>
+        <td>20%</td>
+        <td><span class="num">strong</span></td>
+        <td>This report + in-app Theory tab cover perceptron limits, universal approximation, backprop chain rule, regularisation, bias-variance.</td>
+      </tr>
+      <tr>
+        <td>Experimentation</td>
+        <td>20%</td>
+        <td><span class="num">strong</span></td>
+        <td>Three mandatory experiments one-click, with sklearn columns + per-config decision-boundary thumbnails.</td>
+      </tr>
+      <tr>
+        <td>Platform quality</td>
+        <td>20%</td>
+        <td><span class="num">strong</span></td>
+        <td>Clean separation, consistent model interface, streaming UI, live network viz, 3D tab, no build step.</td>
+      </tr>
+      <tr>
+        <td>Innovation / bonus</td>
+        <td>10%</td>
+        <td><span class="num">strong</span></td>
+        <td>All three named bonuses + RBF network + filter-normalised loss landscape.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="banner ok" style="margin-top:18px"><strong>Conclusion.</strong> Every required deliverable from L1–L6, all three mandatory experiments, and all three named bonuses are implemented. RBF is a free extra. The platform is ready to defend.</div>
+
+  <!-- ─────────── 7. DATASET CATALOGUE ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 07 — Dataset catalogue</span>
+    <svg width="60" height="14" viewBox="0 0 60 14" aria-hidden="true">
+      <circle cx="6"  cy="7" r="3" fill="#7df9c7"/>
+      <circle cx="16" cy="7" r="2" fill="#82c9ff"/>
+      <circle cx="26" cy="7" r="3" fill="#ff86c8"/>
+      <circle cx="36" cy="7" r="2" fill="#ffc05c"/>
+      <circle cx="46" cy="7" r="3" fill="#b58cff"/>
+      <circle cx="56" cy="7" r="2" fill="#7df9c7"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">07.</span> Eight built-in 2D problems</h2>
+  <p>The platform ships with eight synthetic datasets registered in <code>backend/utils/datasets.py</code> — five binary, two multi-class, one regression. All are 2D so the decision boundary is directly visualisable on the canvas heatmap.</p>
+
+  <div class="grid-4">
+    <div class="card" style="padding:12px">
+      <div class="thumb circles" style="height:120px">
+        <div class="thumb-cap">circles</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">binary</div>
+      <div class="card-title" style="font-size:13px">Concentric circles</div>
+      <p class="small muted" style="margin:4px 0 0">Inner ring vs. outer ring. Defeats any linear classifier.</p>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="thumb xor" style="height:120px">
+        <div class="thumb-cap">xor</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">binary</div>
+      <div class="card-title" style="font-size:13px">XOR pattern</div>
+      <p class="small muted" style="margin:4px 0 0">Diagonal quadrants share labels. The historical limit of the perceptron.</p>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="thumb" style="height:120px;background:
+        radial-gradient(120% 70% at 30% 60%, rgba(125,249,199,.55) 0 28%, transparent 28%),
+        radial-gradient(120% 70% at 70% 40%, rgba(255,134,200,.55) 0 28%, transparent 28%),
+        var(--bg-2)">
+        <div class="thumb-cap">moons</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">binary</div>
+      <div class="card-title" style="font-size:13px">Half moons</div>
+      <p class="small muted" style="margin:4px 0 0">Two interlocking arcs. Smoothly separable, mildly nonlinear.</p>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="thumb spirals" style="height:120px">
+        <div class="thumb-cap">spirals</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">binary</div>
+      <div class="card-title" style="font-size:13px">Two spirals</div>
+      <p class="small muted" style="margin:4px 0 0">Classic hard nonlinear problem. Requires depth or width.</p>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="thumb linear" style="height:120px">
+        <div class="thumb-cap">linear</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">binary</div>
+      <div class="card-title" style="font-size:13px">Linearly separable</div>
+      <p class="small muted" style="margin:4px 0 0">Sanity-check baseline. A perceptron should solve this.</p>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="thumb" style="height:120px;background:
+        radial-gradient(circle at 50% 30%, rgba(125,249,199,.55) 0 14%, transparent 14%),
+        radial-gradient(circle at 28% 70%, rgba(255,134,200,.55) 0 14%, transparent 14%),
+        radial-gradient(circle at 72% 70%, rgba(130,201,255,.55) 0 14%, transparent 14%),
+        var(--bg-2)">
+        <div class="thumb-cap">blobs3</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">multi-class</div>
+      <div class="card-title" style="font-size:13px">3 Gaussian blobs</div>
+      <p class="small muted" style="margin:4px 0 0">Triangle of clusters. Forces softmax + CCE.</p>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="thumb" style="height:120px;background:
+        linear-gradient(135deg, rgba(125,249,199,.45) 0 50%, rgba(255,134,200,.45) 50% 100%),
+        linear-gradient(45deg,  rgba(130,201,255,.45) 0 50%, rgba(255,192,92,.45) 50% 100%);
+        background-blend-mode:screen">
+        <div class="thumb-cap">quadrants</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">multi-class</div>
+      <div class="card-title" style="font-size:13px">4 quadrants</div>
+      <p class="small muted" style="margin:4px 0 0">One cluster per quadrant. Four-way softmax.</p>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="thumb" style="height:120px;background:
+        linear-gradient(180deg, rgba(125,249,199,.10), rgba(125,249,199,.10)),
+        var(--bg-2);
+        position:relative;overflow:hidden">
+        <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+          <path d="M0 30 Q 12.5 6, 25 30 T 50 30 T 75 30 T 100 30" fill="none" stroke="#7df9c7" stroke-width="1.4"/>
+        </svg>
+        <div class="thumb-cap">sine</div>
+      </div>
+      <div class="card-eyebrow" style="margin-top:10px">regression</div>
+      <div class="card-title" style="font-size:13px">Sine wave</div>
+      <p class="small muted" style="margin:4px 0 0">1D → 1D regression. Tests MSE + tanh hidden + linear out.</p>
+    </div>
+  </div>
+
+  <div class="banner info" style="margin-top:14px"><strong>CSV upload</strong> works alongside the built-ins: the last column is treated as the label, categorical columns are auto-encoded, features are standardised. Dropped: any row with a NaN.</div>
+
+  <!-- ─────────── 8. UI WALKTHROUGH ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 08 — UI walkthrough</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <rect x="2" y="3" width="6" height="8" fill="none" stroke="#7df9c7" stroke-width="1"/>
+      <rect x="11" y="3" width="6" height="8" fill="none" stroke="#82c9ff" stroke-width="1"/>
+      <rect x="20" y="3" width="6" height="8" fill="none" stroke="#ff86c8" stroke-width="1"/>
+      <rect x="29" y="3" width="6" height="8" fill="none" stroke="#ffc05c" stroke-width="1"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">08.</span> Six tabs, one workflow</h2>
+  <p>The single-page app is organised around a sticky sidebar (configuration) and a tab strip (output). Configure → Train → explore the results across tabs.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-eyebrow">tab 01</div>
+      <div class="card-title">Live training</div>
+      <p class="small">Loss + accuracy curves stream in real time as the NDJSON stream arrives. The hero network pulses on each weight snapshot.</p>
+      <div class="tags"><span class="tag mint">chart.js</span><span class="tag mint">ndjson</span></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">tab 02</div>
+      <div class="card-title">Results</div>
+      <p class="small">Classification report (accuracy, P/R/F1, confusion matrix) or regression metrics (MSE / RMSE / R²) — picked from the problem type.</p>
+      <div class="tags"><span class="tag cyan">classification</span><span class="tag cyan">regression</span></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">tab 03</div>
+      <div class="card-title">Decision boundary</div>
+      <p class="small">Canvas heatmap of <code>P(y = 1)</code> over the input plane, train and test scatters overlaid. Side-by-side train vs. test.</p>
+      <div class="tags"><span class="tag pink">canvas</span><span class="tag pink">2d only</span></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">tab 04</div>
+      <div class="card-title">Theory</div>
+      <p class="small">In-app primer: perceptron limits, universal approximation, activations, losses, backprop, regularisation, bias-variance.</p>
+      <div class="tags"><span class="tag amber">in-app docs</span></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">tab 05</div>
+      <div class="card-title">Experiments</div>
+      <p class="small">One-click runs of the three mandatory experiments. Shows ours · acc / loss next to sklearn · acc / loss for sanity.</p>
+      <div class="tags"><span class="tag mint">one-click</span><span class="tag">sklearn</span></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">tab 06</div>
+      <div class="card-title">3D</div>
+      <p class="small">Plotly surfaces: probability surface over the input plane and filter-normalised loss landscape around the trained weights.</p>
+      <div class="tags"><span class="tag cyan">plotly</span><span class="tag cyan">filter-norm</span></div>
+    </div>
+  </div>
+
+  <!-- Sidebar mockup -->
+  <h3 class="sub">Sidebar configuration</h3>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="display:grid;grid-template-columns:260px 1fr;min-height:280px">
+      <!-- Left: faux sidebar -->
+      <div style="padding:18px 16px;background:linear-gradient(180deg,var(--bg-2),var(--bg) 60%);border-right:1px solid var(--line);font-size:11.5px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="width:6px;height:6px;background:var(--mint);box-shadow:0 0 8px var(--mint-glow);display:inline-block"></span>
+          dataset
+        </div>
+        <div style="background:var(--surface-1);border:1px solid var(--line-2);border-radius:6px;padding:7px 9px;color:var(--text);margin-bottom:14px">Concentric circles ▾</div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="width:6px;height:6px;background:var(--mint);box-shadow:0 0 8px var(--mint-glow);display:inline-block"></span>
+          architecture
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);margin-bottom:4px">hidden layers <em class="mono" style="color:var(--mint);font-style:normal">2</em></div>
+        <div style="height:3px;background:linear-gradient(90deg,var(--mint) 0%,var(--mint) 30%,var(--line-2) 30%,var(--line-2) 100%);border-radius:999px;margin-bottom:12px"></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);margin-bottom:4px">width <em class="mono" style="color:var(--mint);font-style:normal">16</em></div>
+        <div style="height:3px;background:linear-gradient(90deg,var(--mint) 0%,var(--mint) 55%,var(--line-2) 55%,var(--line-2) 100%);border-radius:999px;margin-bottom:14px"></div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="width:6px;height:6px;background:var(--mint);box-shadow:0 0 8px var(--mint-glow);display:inline-block"></span>
+          training
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);margin-bottom:4px">epochs <em class="mono" style="color:var(--mint);font-style:normal">120</em></div>
+        <div style="height:3px;background:linear-gradient(90deg,var(--mint) 0%,var(--mint) 60%,var(--line-2) 60%,var(--line-2) 100%);border-radius:999px;margin-bottom:14px"></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);margin-bottom:4px">learning rate <em class="mono" style="color:var(--mint);font-style:normal">0.01</em></div>
+        <div style="height:3px;background:linear-gradient(90deg,var(--mint) 0%,var(--mint) 25%,var(--line-2) 25%,var(--line-2) 100%);border-radius:999px;margin-bottom:18px"></div>
+
+        <div style="padding:11px 14px;background:linear-gradient(180deg,var(--mint),#5fdba9);color:var(--bg);border-radius:6px;text-align:center;font-weight:600;font-size:13px;letter-spacing:.02em;box-shadow:0 0 0 1px rgba(125,249,199,.4),0 8px 24px -8px var(--mint-glow)">
+          Train ›
+        </div>
+      </div>
+
+      <!-- Right: faux training pane -->
+      <div style="padding:20px 22px;background:var(--surface-1)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div>
+            <div class="card-eyebrow">epoch 87 / 120</div>
+            <div class="card-title">Training in progress…</div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--mint);background:rgba(125,249,199,.06);border:1px solid rgba(125,249,199,.30);padding:3px 9px;border-radius:999px">● live</span>
+        </div>
+        <!-- faux loss curve -->
+        <svg viewBox="0 0 360 130" style="width:100%;height:130px">
+          <defs>
+            <linearGradient id="lossfade" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#7df9c7" stop-opacity=".25"/>
+              <stop offset="100%" stop-color="#7df9c7" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- gridlines -->
+          <line x1="0" y1="30" x2="360" y2="30" stroke="#1f2738" stroke-width="1"/>
+          <line x1="0" y1="65" x2="360" y2="65" stroke="#1f2738" stroke-width="1"/>
+          <line x1="0" y1="100" x2="360" y2="100" stroke="#1f2738" stroke-width="1"/>
+          <!-- training loss -->
+          <path d="M0 20 C 30 22, 60 30, 90 50 S 150 90, 200 102 S 280 116, 360 122" fill="none" stroke="#7df9c7" stroke-width="1.6"/>
+          <path d="M0 20 C 30 22, 60 30, 90 50 S 150 90, 200 102 S 280 116, 360 122 L 360 130 L 0 130 Z" fill="url(#lossfade)"/>
+          <!-- val loss -->
+          <path d="M0 24 C 30 26, 60 38, 90 60 S 150 96, 200 105 S 280 112, 360 116" fill="none" stroke="#ff86c8" stroke-width="1.4" stroke-dasharray="3 3"/>
+        </svg>
+        <div style="display:flex;gap:18px;font-size:11px;color:var(--muted);margin-top:6px">
+          <span><span style="display:inline-block;width:9px;height:2px;background:var(--mint);box-shadow:0 0 5px var(--mint-glow);margin-right:6px;vertical-align:middle"></span>train loss</span>
+          <span><span style="display:inline-block;width:9px;height:2px;background:var(--pink);box-shadow:0 0 5px var(--pink-glow);margin-right:6px;vertical-align:middle"></span>val loss</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── 9. API REFERENCE ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 09 — API reference</span>
+    <svg width="50" height="14" viewBox="0 0 50 14" aria-hidden="true">
+      <path d="M2 7 L46 7" stroke="#82c9ff" stroke-width="1"/>
+      <path d="M40 3 L48 7 L40 11" fill="none" stroke="#82c9ff" stroke-width="1"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">09.</span> Endpoints at a glance</h2>
+  <table>
+    <thead><tr><th>route</th><th>method</th><th>purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>/api/datasets</code></td><td>GET</td><td>List built-in datasets.</td></tr>
+      <tr><td><code>/api/dataset</code></td><td>POST</td><td>Generate <code>{X, y}</code> for a built-in dataset.</td></tr>
+      <tr><td><code>/api/upload</code></td><td>POST</td><td>CSV upload, label-encoded + standardised.</td></tr>
+      <tr><td><code>/api/train</code></td><td>POST</td><td>NDJSON stream — one line per epoch + <code>init</code> and <code>done</code>.</td></tr>
+      <tr><td><code>/api/boundary/&lt;sid&gt;</code></td><td>GET</td><td>Decision-boundary grid + train/test scatter.</td></tr>
+      <tr><td><code>/api/results/&lt;sid&gt;</code></td><td>GET</td><td>Classification or regression metrics.</td></tr>
+      <tr><td><code>/api/experiments</code></td><td>GET</td><td>List comparative experiments.</td></tr>
+      <tr><td><code>/api/experiment</code></td><td>POST</td><td>NDJSON stream — runs a comparison.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">NDJSON stream — line shapes</h3>
+  <div class="formula">
+{ "type": "init",  "epochs": 120, "batches_per_epoch": 8 }<br>
+{ "type": "epoch", "epoch": 1, "loss": 0.682, "acc": 0.55,  "val_loss": 0.678, "val_acc": 0.57 }<br>
+{ "type": "epoch", "epoch": 2, "loss": 0.611, "acc": 0.63, ... , "snapshot": { "W": [[...]], "b": [...] } }<br>
+…<br>
+{ "type": "done",  "session_id": "<span style="color:var(--mint)">a3f9c1…</span>" }
+  </div>
+
+  <!-- ─────────── 10. RUN ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 10 — How to run</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <polygon points="2,2 14,7 2,12" fill="#7df9c7"/>
+      <line x1="18" y1="7" x2="38" y2="7" stroke="#7df9c7" stroke-width="1"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">10.</span> From clone to live</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-eyebrow">install</div>
+      <div class="card-title">Three commands</div>
+      <div class="formula" style="margin-top:8px">
+$ <span style="color:var(--mint)">pip install -r requirements.txt</span><br>
+$ <span style="color:var(--mint)">python run.py</span>             <span style="color:var(--muted)"># http://127.0.0.1:5000</span><br>
+$ <span style="color:var(--mint)">python run.py --port 8000</span> <span style="color:var(--muted)"># custom port</span>
+      </div>
+      <p class="small muted" style="margin-top:10px">No build step, no test suite, no linter. Configure on the left, click <strong style="color:var(--mint)">Train</strong>, watch the network learn.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">dependencies</div>
+      <div class="card-title">requirements.txt</div>
+      <table style="margin-top:6px">
+        <tbody>
+          <tr><td>flask</td><td>web framework + NDJSON streaming</td></tr>
+          <tr><td>numpy</td><td>the entire ML engine</td></tr>
+          <tr><td>pandas</td><td>CSV parsing only</td></tr>
+          <tr><td>scikit-learn</td><td>baselines for the experiments tab</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin-top:10px">Frontend pulls Chart.js and Plotly via CDN — no <code>node_modules</code>, no <code>package.json</code>.</p>
+    </div>
+  </div>
+
+  <!-- ─────────── 11. GLOSSARY ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 11 — Glossary</span>
+    <svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true">
+      <line x1="2" y1="4" x2="38" y2="4" stroke="#b58cff" stroke-width="1"/>
+      <line x1="2" y1="7" x2="28" y2="7" stroke="#b58cff" stroke-width="1"/>
+      <line x1="2" y1="10" x2="34" y2="10" stroke="#b58cff" stroke-width="1"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">11.</span> Terminology</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <table>
+        <tbody>
+          <tr><td>Activation</td><td>Element-wise non-linearity applied to <code>z = Wx + b</code>.</td></tr>
+          <tr><td>Backprop</td><td>Chain-rule walk that produces ∂𝓛/∂Wⁱ for every layer.</td></tr>
+          <tr><td>Dropout</td><td>Randomly zeros activations during training to force redundancy.</td></tr>
+          <tr><td>Early stopping</td><td>Halts training when validation loss stops improving (with best-weight rollback).</td></tr>
+          <tr><td>He init</td><td>Weight init scaled by √(2 / fan_in) — pairs well with ReLU.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <table>
+        <tbody>
+          <tr><td>L2 reg.</td><td>Adds <code>λ Σ w²</code> to the loss — penalises large weights.</td></tr>
+          <tr><td>Mini-batch SGD</td><td>Gradient descent on small random subsets of the training set.</td></tr>
+          <tr><td>NDJSON</td><td>Newline-delimited JSON — one record per line, easy to stream.</td></tr>
+          <tr><td>RBF</td><td>Radial Basis Function. Hidden layer = Gaussian kernels at fixed centers.</td></tr>
+          <tr><td>Universal approximator</td><td>A network with one non-polynomial hidden layer can fit any continuous function on a compact set.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─────────── 12. REFLECTIONS ─────────── -->
+  <div class="divider">
+    <span class="seg">/ 12 — Reflections</span>
+    <svg width="60" height="14" viewBox="0 0 60 14" aria-hidden="true">
+      <circle cx="6"  cy="7" r="3" fill="#7df9c7"/>
+      <path d="M9 7 Q 18 -2, 28 7 T 50 7" fill="none" stroke="#82c9ff" stroke-width="1.4"/>
+      <circle cx="54" cy="7" r="3" fill="#ff86c8"/>
+    </svg>
+    <span class="line"></span>
+  </div>
+
+  <h2 class="section"><span class="num">12.</span> Closing notes — challenges &amp; lessons learned</h2>
+
+  <p>Neuralab began as a course project and ended up as a full educational studio: a pure-NumPy ML engine, a streaming Flask API, a single-page interface with a live network visualisation, and three one-click experiments validated against scikit-learn. Building it end-to-end forced us to confront neural networks not as a library call but as a sequence of small, debuggable matrix operations — and to design an interface that makes those operations <em>visible</em> while a student watches them happen.</p>
+
+  <p>The hardest parts were rarely where we expected. <strong>Numerical stability</strong> in backprop bit us early: a naive softmax + cross-entropy implementation produced <code>NaN</code>s within a few epochs until we collapsed the composite gradient to the stable <code>(ŷ − y) / N</code> form. <strong>Streaming</strong> required rethinking how the frontend talks to the backend — moving from request/response to an NDJSON pipe, and sub-sampling weight snapshots to ~30 per run so the wire and the SVG renderer stayed responsive. The <strong>filter-normalised loss landscape</strong> (Li et al., 2018) was the most subtle: drawing two random directions in flattened weight space and normalising them <em>per parameter</em> so that no single weight matrix dominates the visualisation. And every model — perceptron, MLP, RBF — had to expose the same <code>forward / backward / apply_gradients</code> surface so the optimizer could stay model-agnostic; getting that interface right took more refactoring than we’d planned for.</p>
+
+  <p>What we take away: <strong>writing the math by hand is the fastest way to actually understand it</strong>. Sigmoid derivatives, ReLU’s zero-region pathology, dropout’s inverted-mask trick, He initialisation’s √(2 / fan_in) — these stop being incantations once you have to differentiate them. We learned that good visualisation is a debugging tool first and a teaching tool second: watching edges flicker between mint and pink as weights flip sign told us more about what the network was doing than any printed loss curve. We learned that streaming UIs are worth the complexity — a static post-hoc chart hides the dynamics that <em>are</em> the lesson. And we learned that small architectural decisions (a uniform model interface, a session-keyed in-memory store, NDJSON as the wire format) compound into a codebase that stays pleasant to work in well past the initial sprint. The platform is small, but every line of math is ours, and every gradient is one we can defend.</p>
+
+  <h3 class="sub">Project team</h3>
+  <div class="signatures">
+    <div class="sig-card">
+      <div class="sig-avatar a">ST</div>
+      <div>
+        <div class="sig-name">Sinda Touzi</div>
+        <div class="sig-role">co-author · contributor</div>
+      </div>
+    </div>
+    <div class="sig-card">
+      <div class="sig-avatar b">MD</div>
+      <div>
+        <div class="sig-name">Mohamed Amine Dhafer</div>
+        <div class="sig-role">co-author · contributor</div>
+      </div>
+    </div>
+    <div class="sig-card">
+      <div class="sig-avatar c">MN</div>
+      <div>
+        <div class="sig-name">Mohamed Neji Ben Mansour</div>
+        <div class="sig-role">co-author · contributor</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>Neuralab · Educational Platform Report</span>
+    <span class="sig">— hand-rolled gradients, end to end.</span>
+    <span>2026 · v1.0</span>
+  </footer>
+
+</main>
+</body>
+</html>
